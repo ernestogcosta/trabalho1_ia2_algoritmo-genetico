@@ -2,6 +2,7 @@ from random import randint, random
 from math import ceil
 
 TAMANHO_MAX = int(80)
+melhor = [0,0,0,0,0,0,0]
 
 def main(): #{
     # Tabela usada na sala
@@ -10,11 +11,11 @@ def main(): #{
     newPop = gerarPop(5, tabela)
 
 
-    # duas últimas colunas são tamanho e por último valor
+    # duas últimas colunas são tamanho e por último valor/fitness
     for i in range(0,(len(newPop))):
         print(f'{newPop[i][0:5]}\ttamanho: {newPop[i][5]}\tvalor: {newPop[i][6]}')
 
-    separaGrupos(newPop, tabela)
+    separaGrupos(newPop)
 
 #}
 
@@ -46,27 +47,25 @@ def verificarTamanho(individuo, tabela): #{
 #}
 
 def verificarFitness(individuo, tabela): #{
-    tamanho = 0
+    fitness = 0
     for i in range(0,5):
         if int(individuo[i]) == 1:
-            tamanho += int(tabela[i][1])
-    return tamanho
+            fitness += int(tabela[i][1])
+    return fitness
 #}
 
-def separaGrupos(populacao, tabela): #{
+def separaGrupos(populacao): #{
     individuos = populacao
     individuos.sort(key=keyValor1, reverse=True)
+
     meio = ceil(len(populacao)/2)
 
     chancePai = random()*100
-    chancePai = random()*100
+    chanceMae = random()*100
     totalPai = 0
     totalMae = 0
-    pai = []
-    mae = []
     probPais = []
     probMaes = []
-    probInd = []
 
     for i in range(0, len(individuos)):
         if (i < meio):
@@ -104,12 +103,33 @@ def separaGrupos(populacao, tabela): #{
     for i in range(0, len(probMaes)):
         print(probMaes[i])
     ##########################################################################################
-    # pai = individuos[probPais[0][1]]
+    # Pai = individuos[probPais[0][1]]
     # mae = individuos[probMaes[0][1]]
 
-    # Agora dá pra saber quem são o pai e a mãe, tem que fazer o cruzamento
+    # Agora dá pra saber quem são o posicaoPai e a mãe, tem que fazer o cruzamento
 
+    for i in range(0,len(probPais)):
+        if (i == 0):
+            posicaoPai = probPais[i]
+        else:
+            if(chancePai < probPais[i][0]) and (probPais[i][0] > posicaoPai[0]):
+                posicaoPai = probPais[i]
+    for i in range(0,len(probMaes)):
+        if (i == 0):
+            posicaoMae = probMaes[i]
+        else:
+            if(chanceMae < probMaes[i][0]) and (probMaes[i][0] > posicaoMae[0]):
+                posicaoMae = probMaes[i]
 
+    # chamar função de cruzamento
+    cruzamento(individuos, posicaoPai[1], posicaoMae[1])
+#}
+
+def cruzamento(individuos, posicaoPai, posicaoMae): #{
+    pai = individuos[posicaoPai]
+    mae = individuos[posicaoMae]
+    completo = False
+    print()
 #}
 
 def keyValor1(objeto):

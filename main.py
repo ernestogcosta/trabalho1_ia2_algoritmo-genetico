@@ -8,15 +8,42 @@ countMelhor = 0
 def main(): #{
     # Tabela usada na sala
     # Tabela onde cada coluna é: tamanho, valor, probabilidade e probabilidade acumulada
-    tabela = [[10, 15, 0.2, 0.2], [40, 90, 0.2, 0.4], [20, 50, 0.2, 0.6], [32, 40, 0.2, 0.8], [8, 12, 0.2, 1.0]]
+    tabela = [[10, 15, 0.2, 0.2],
+              [40, 90, 0.2, 0.4],
+              [20, 50, 0.2, 0.6],
+              [32, 40, 0.2, 0.8],
+              [8,  12, 0.2, 1.0]]
     newPop = gerarPop(5, tabela)
 
     # duas últimas colunas são tamanho e por último valor/fitness
+    # for i in range(0,(len(newPop))):
+    #     print(f'{newPop[i][0:5]}\ttamanho: {newPop[i][5]}\tvalor: {newPop[i][6]}')
     for i in range(0,(len(newPop))):
-        print(f'{newPop[i][0:5]}\ttamanho: {newPop[i][5]}\tvalor: {newPop[i][6]}')
+        print(f'{newPop[i]}')
 
-    separaGrupos(newPop, tabela)
+    # separaGrupos(newPop, tabela)
+    # # for i in range(0,(len(newPop))):
+    # #     print(f'{newPop[i]}')
+    # print(f'Melhor resultado: {melhor}')
+    # separaGrupos(newPop, tabela)
+    # # for i in range(0,(len(newPop))):
+    # #     print(f'{newPop[i]}')
+    # print(f'Melhor resultado: {melhor}')
+    rodaAlgoritmoGenetico(newPop, tabela)
+#}
 
+def rodaAlgoritmoGenetico(populacao, tabela): #{
+    epoca = 0
+    global countMelhor
+
+    while (epoca < 2):
+        populacao = separaGrupos(populacao, tabela)
+        epoca += 1
+
+        for i in range(0, (len(populacao))):
+            print(f'{populacao[i]}')
+    print(f'qtd de epocas: {epoca}')
+    print(f'Melhor resultado: {melhor}')
 #}
 
 def gerarPop(numInd, tabela):#{
@@ -41,15 +68,17 @@ def gerarPop(numInd, tabela):#{
 def verificarTamanho(individuo, tabela): #{
     tamanho = 0
     for i in range(0,5):
-        if int(individuo[i]) == 1:
+        if individuo[i] == 1:
             tamanho += int(tabela[i][0])
     return tamanho
 #}
 
 def verificarFitness(individuo, tabela): #{
     fitness = 0
+    print(f'individuo no começo do verificarFitness: {individuo}')
     for i in range(0,5):
-        if int(individuo[i]) == 1:
+        if individuo[i] == 1:
+            #print('a dentro do if do verificarFitness')
             fitness += int(tabela[i][1])
     return fitness
 #}
@@ -57,18 +86,17 @@ def verificarFitness(individuo, tabela): #{
 def separaGrupos(populacao, tabela): #{
     individuos = populacao
     individuos.sort(key=keyValor1, reverse=True)
-
+    global melhor
     global countMelhor
     countMelhor += 1
-    print(f' count melhor1: {countMelhor}')
-    if melhor[6] < individuos[0][6]:
+
+    if individuos[0][6] > melhor[6]:
         melhor.clear()
-        melhor.append(individuos[0])
-        print(f'melhor: {melhor}')
+        melhor = individuos[0]
         countMelhor = 0
 
 
-    meio = ceil(len(populacao)/2)
+    meio = ceil(len(individuos)/2)
     chancePai = random()*100
     chanceMae = random()*100
     totalPai = 0
@@ -78,11 +106,13 @@ def separaGrupos(populacao, tabela): #{
 
     for i in range(0, len(individuos)):
         if (i < meio):
-            totalPai += individuos[i][6]
+            #totalPai += individuos[i][6]
+            totalPai = totalPai + verificarFitness(individuos[i],tabela)
         else:
-            totalMae += individuos[i][6]
+            #totalMae += individuos[i][6]
+            totalMae = totalMae + verificarFitness(individuos[i],tabela)
 
-    for i in range(0, len(individuos)):
+    for i in range(0, len(populacao)):
         prob = 0
         probInd = []
         if (i < meio):
@@ -98,25 +128,6 @@ def separaGrupos(populacao, tabela): #{
     probPais.sort(key=keyValor2, reverse=True)
     probMaes.sort(key=keyValor2, reverse=True)
 
-    ##########################################################################################
-    ## SÓ PRA TESTAR, APAGAR ISSO DEPOIS #####################################################
-    ##########################################################################################
-    # duas últimas colunas são tamanho e por último valor
-    print('ordenado:')
-    for i in range(0, (len(individuos))):
-        print(f'{individuos[i][0:5]}\ttamanho: {individuos[i][5]}\tvalor: {individuos[i][6]}')
-    print('probPais:')
-    for i in range(0, len(probPais)):
-        print(probPais[i])
-    print('probMaes:')
-    for i in range(0, len(probMaes)):
-        print(probMaes[i])
-    ##########################################################################################
-    # Pai = individuos[probPais[0][1]]
-    # mae = individuos[probMaes[0][1]]
-
-    # Agora dá pra saber quem são o posicaoPai e a mãe, tem que fazer o cruzamento
-
     for i in range(0,len(probPais)):
         if (i == 0):
             posicaoPai = probPais[i]
@@ -130,33 +141,24 @@ def separaGrupos(populacao, tabela): #{
             if(chanceMae < probMaes[i][0]) and (probMaes[i][0] > posicaoMae[0]):
                 posicaoMae = probMaes[i]
 
-    print(f'posição pai: {posicaoPai[1]}')
-    print(f'posição individuos em posição pais: {individuos[posicaoPai[1]]}')
-
-    # chamar função de cruzamento
     cruzamento(individuos, posicaoPai, posicaoMae, tabela)
-    populacao = individuos
-
-    ##########################################################################################
-    ## SÓ PRA TESTAR, APAGAR ISSO DEPOIS #####################################################
-    ##########################################################################################
-    # duas últimas colunas são tamanho e por último valor
-    print('pós cruzamento (incompleta a função ainda):')
-    for i in range(0, (len(individuos))):
-        print(f'{individuos[i][0:5]}\ttamanho: {individuos[i][5]}\tvalor: {individuos[i][6]}')
-    ##########################################################################################
+    return individuos
 #}
 
 def cruzamento(individuos, posicaoPai, posicaoMae, tabela): #{
     pai = individuos[posicaoPai[1]]
+    print(f'pai no cruzamento: {pai}')
     mae = individuos[posicaoMae[1]]
+    print(f'mae no cruzamento: {mae}')
     pai.pop(6)
+    mae.pop(6)
     pai.pop(5)
-    print(f'pai antes: {pai}')
+    mae.pop(5)
+    #print(f'pai antes: {pai}')
 
     global countMelhor
     countMelhor += 10
-    print(f'countMelhor em cruzamento: {countMelhor}')
+    #print(f'countMelhor em cruzamento: {countMelhor}')
 
     individuos.pop(posicaoMae[1])
     individuos.pop(posicaoPai[1])
@@ -175,23 +177,41 @@ def cruzamento(individuos, posicaoPai, posicaoMae, tabela): #{
                 chanceMutar2 = random()
                 if chanceMutar1 <= 0.05:
                     # mutação filho1
-                    print()
+                    #print(f'filho sem mutar: {filho1}')
+                    filho1 = mutacao(filho1, tabela)
+                    #print(f'filho com mutar: {filho1}')
                 if chanceMutar2 <= 0.05:
                     # mutação filho2
-                    print()
+                    filho2 = mutacao(filho2, tabela)
+                    #print()
                 filho1.append(verificarTamanho(filho1, tabela))
                 filho1.append(verificarFitness(filho1, tabela))
                 filho2.append(verificarTamanho(filho2, tabela))
                 filho2.append(verificarFitness(filho2, tabela))
                 sussa = True
-                print(f'filho com novo tamanho e novo fitness: {filho1}')
+                #print(f'filho com novo tamanho e novo fitness: {filho1}')
 
     individuos.append(filho1)
+    print(f'filho1 no cruzamento: {filho1}')
     individuos.append(filho2)
+    print(f'filho2 no cruzamento: {filho1}')
 #}
 
-def mutacao(filho): #{
-    print()
+def mutacao(filho, tabela): #{
+    tudoCerto = False
+    while tudoCerto != True:
+        individuo = filho
+        cromMudar = randint(0,4)
+        if individuo[cromMudar] == 0:
+            individuo[cromMudar] = 1
+        else:
+            individuo[cromMudar] = 0
+        novoTamanho = verificarTamanho(filho, tabela)
+        if (novoTamanho <= TAMANHO_MAX) and (novoTamanho != 0):
+            filho = individuo
+            print(individuo)
+            tudoCerto = True
+    return filho
 #}
 
 def keyValor1(objeto):
@@ -205,3 +225,26 @@ def keyValor2(objeto):
 if(__name__ == "__main__"): #{
     main()
 #}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

@@ -9,27 +9,40 @@ countMelhor = 0
 def main():  # {
     # Tabela usada na sala
     # Tabela onde cada coluna é: tamanho, valor, probabilidade e probabilidade acumulada
-    tabela = [[10, 15, 0.2, 0.2],
-              [40, 90, 0.2, 0.4],
-              [20, 50, 0.2, 0.6],
-              [32, 40, 0.2, 0.8],
-              [8, 12, 0.2, 1.0]]
+    tabela = [[42, 15, 0.2, 0.2],
+              [23, 90, 0.2, 0.4],
+              [18, 50, 0.2, 0.6],
+              [36, 40, 0.2, 0.8],
+              [8, 15, 0.2, 1.0]]
     newPop = gerarPop(5, tabela)
 
+    print('Matriz inicial:')
+    for i in range(0, len(newPop)):
+        print(f'{newPop[i][0:5]}\ttamanho: {newPop[i][5]}\tfitness: {newPop[i][6]}')
+    print(f'melhor usuário incial: {melhor}')
+    print()
+
+
     rodaAlgoritmoGenetico(newPop, tabela)
+    print()
+    #for i in range(0, len(newPop)):
+    #    print(newPop[i])
 # }
 
 def rodaAlgoritmoGenetico(populacao, tabela):  # {
     epoca = 0
-    global countMelhor
-
-    while (epoca < 100):
+    global countMelhor, melhor
+    while (epoca < 150):
         individuos = separaGrupos(populacao, tabela)
         populacao = individuos
         epoca += 1
-        if countMelhor > 15:
+        for i in range(0,len(populacao)):
+            print(f'{populacao[i][0:5]}\ttamanho: {populacao[i][5]}\tfitness: {populacao[i][6]}')
+        print(f'época atual: {epoca}')
+        print(f'melhor atual: {melhor}\n')
+        if countMelhor > 100:
             break
-    print('\n' * 50)
+    #print('\n' * 5)
     print(f'quantas vezes o melhor não muda: {countMelhor}')
     print(f'qtd de epocas: {epoca}')
     print(f'Melhor resultado: {melhor}')
@@ -158,9 +171,9 @@ def cruzamento(individuos, posicaoPai, posicaoMae, tabela):  # {
             if (verificarTamanho(filho1, tabela) > 0) and (verificarTamanho(filho2, tabela) > 0):
                 chanceMutar1 = random()
                 chanceMutar2 = random()
-                if chanceMutar1 <= 0.05:
+                if chanceMutar1 <= 0.2:
                     filho1 = mutacao(filho1, tabela)
-                if chanceMutar2 <= 0.05:
+                if chanceMutar2 <= 0.2:
                     filho2 = mutacao(filho2, tabela)
                 filho1.append(verificarTamanho(filho1, tabela))
                 filho1.append(verificarFitness(filho1, tabela))
